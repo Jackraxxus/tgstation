@@ -163,12 +163,30 @@
 	throw_range = 5
 	armour_penetration = 35
 	block_chance = 50
-	embedding = list("embed_chance" = 75, "impact_pain_mult" = 10)
 
 /obj/item/melee/energy/sword/hit_reaction(mob/living/carbon/human/owner, atom/movable/hitby, attack_text = "the attack", final_block_chance = 0, damage = 0, attack_type = MELEE_ATTACK)
 	if(blade_active)
 		return ..()
 	return FALSE
+
+/obj/item/melee/energy/sword/throw_at(atom/target, range, speed, mob/thrower, spin=1, diagonals_first = 0, datum/callback/callback, force)
+	if(blade_active)
+		if(ishuman(thrower))
+			var/mob/living/carbon/human/H = thrower
+				H.throw_mode_off()
+return ..()
+
+obj/item/melee/energy/sword/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
+	if(blade_active)
+		var/caught = hit_atom.hitby(src, FALSE, FALSE, throwingdatum=throwingdatum)
+			if(ishuman(hit_atom) && !caught && prob(throw_hit_chance)) //If they catch your Esword it doesn't hit them
+				/obj/item/melee/energy/sword/hit_reaction()
+	if(thrownby && !caught) //And you don't get it back
+		sleep(1)
+			if(!QDELETED(src))
+				throw_at(thrownby, throw_range+2, throw_speed, null, TRUE) //If you don't catch it you get skill issued
+
+
 
 /obj/item/melee/energy/sword/cyborg
 	name = "cyborg energy sword"
